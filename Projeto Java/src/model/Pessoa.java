@@ -3,9 +3,15 @@ package model;
 public abstract class Pessoa {
     private String nome;
     private int idade;
+    private int cpf;
 
     public Pessoa(String nome) {
     }
+
+    public Pessoa(int idade) {
+    }
+
+
 
     public abstract void quem_sou_eu();
 
@@ -25,11 +31,20 @@ public abstract class Pessoa {
         this.idade = idade;
     }
 
+    public int getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(int cpf) {
+        this.cpf = cpf;
+    }
+
     @Override
     public String toString() {
         return "Pessoa{" +
                 "nome='" + nome + '\'' +
-                ", idade=" + idade +
+                ", idade=" + idade + '\'' +
+                ", cpf=" + cpf +
                 '}';
     }
 }
