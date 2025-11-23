@@ -1,23 +1,82 @@
 package controller;
 
 import model.Cliente;
-import model.Vendedor;
+import service.ClienteService;
 
-import java.util.List;
+import java.util.Scanner;
 
 public class ClienteController {
-    private ClienteController ClienteService = new ClienteController();
 
-    public void cadastrarCliente(Cliente cliente) {
-        ClienteService.cadastrarCliente(cliente);
+    private ClienteService clienteService;
+    private Scanner scanner;
+
+    // CONSTRUTOR COMPATÍVEL COM A MAIN
+    public ClienteController(ClienteService clienteService, Scanner scanner) {
+        this.clienteService = clienteService;
+        this.scanner = scanner;
     }
-    public List<Cliente> listarCliente() {
-        return ClienteService.listarCliente();
+
+    public void cadastrarCliente() {
+
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine();
+
+        System.out.print("CPF: ");
+        String cpf = scanner.nextLine();
+
+        System.out.print("Idade: ");
+        int idade = Integer.parseInt(scanner.nextLine());
+
+        System.out.print("Senha: ");
+        String senha = scanner.nextLine();
+
+        clienteService.cadastrar(nome, cpf, idade, senha);
+
+        System.out.println("Cliente cadastrado com sucesso!");
     }
-    public void atualizarCliente(String nome, String novoNome) {
-        ClienteService.atualizarCliente(nome, novoNome);
+
+    public Cliente loginCliente() {
+
+        System.out.print("CPF: ");
+        String cpf = scanner.nextLine();
+
+        System.out.print("Senha: ");
+        String senha = scanner.nextLine();
+
+        Cliente cliente = clienteService.login(cpf, senha);
+
+        if (cliente == null) {
+            System.out.println("CPF ou senha inválidos!");
+        } else {
+            System.out.println("Login realizado com sucesso!");
+        }
+
+        return cliente;
     }
-    public void deletarCliente(String nome) {
-        ClienteService.deletarCliente(nome);
+
+    public void menuCliente(Cliente clienteLogado) {
+
+        int opcao = -1;
+
+        while (opcao != 0) {
+            System.out.println("\n===== MENU DO CLIENTE " + clienteLogado.getNome() + " =====");
+            System.out.println("1 - Consultar Produtos (Sprint 3)");
+            System.out.println("2 - Realizar Compra (Sprint 3)");
+            System.out.println("0 - Sair");
+            System.out.print("Escolha: ");
+
+            try {
+                opcao = Integer.parseInt(scanner.nextLine());
+            } catch (Exception e) {
+                opcao = -1;
+            }
+
+            switch (opcao) {
+                case 1 -> System.out.println("Função disponível na Sprint 3");
+                case 2 -> System.out.println("Função disponível na Sprint 3");
+                case 0 -> System.out.println("Saindo do menu do cliente...");
+                default -> System.out.println("Opção inválida!");
+            }
+        }
     }
 }
