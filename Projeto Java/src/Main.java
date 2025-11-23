@@ -1,102 +1,143 @@
-import model.Cliente;
-import model.Vendedor;
-import service.CadastroCliente;
-import service.CadastroVendedor;
-
 import java.util.Scanner;
 
+import controller.ClienteController;
+import controller.MercadoController;
+import model.Cliente;
+import service.ClienteService;
+import service.MercadoService;
+import service.ProdutoService;
+
 public class Main {
+
     public static void main(String[] args) {
-        String r;
 
         Scanner sc = new Scanner(System.in);
 
-        do {
-            System.out.print("Digite 1 se for cliente e 2 se for vendedor: ");
-            int x = sc.nextInt();
+        // Serviços do sistema
+        MercadoService mercadoService = new MercadoService();
+        ProdutoService produtoService = new ProdutoService();
+        ClienteService clienteService = new ClienteService();
 
-            Vendedor v = new Vendedor("");
-            Cliente c = new Cliente("");
-            CadastroVendedor cv = new CadastroVendedor();
-            CadastroCliente cc = new CadastroCliente();
+        // Controllers
+        MercadoController mercadoController = new MercadoController(mercadoService, produtoService, sc);
+        ClienteController clienteController = new ClienteController(clienteService, sc);
 
-            switch (x) {
+        int opc = -1;
 
+        while (opc != 0) {
+
+            System.out.println("\n=== MENU PRINCIPAL ===");
+            System.out.println("1 - Menu do Mercado");
+            System.out.println("2 - Menu do Cliente");
+            System.out.println("0 - Sair");
+            System.out.print("Escolha: ");
+
+            try {
+                opc = Integer.parseInt(sc.nextLine());
+            } catch (Exception e) {
+                opc = -1;
+            }
+
+            switch (opc) {
                 case 1:
-                    System.out.println("Você selecionou cliente");
-
-                    System.out.print("Nome do cliente: ");
-                    c.setNome(sc.next());
-                    System.out.print("Idade do cliente: ");
-                    c.setIdade(sc.nextInt());
-                    cc.cadastrar(c);
-                    System.out.print("Idade do cpf: ");
-                    c.setCpf(sc.nextInt());
-                    cc.cadastrar(c);
-
-                    System.out.print("Deseja atualizar os dados? (S/N): ");
-                    String atualizarCliente = sc.next();
-                    if (atualizarCliente.equalsIgnoreCase("S")) {
-                        System.out.print("Informe o novo nome: ");
-                        c.setNome(sc.next());
-                        System.out.print("Nova idade: ");
-                        c.setIdade(sc.nextInt());
-                        cc.atualizar(c.getNome(), c.getIdade());
-                    }
-
-                    System.out.print("Deseja excluir os dados? (S/N): ");
-                    String excluirCliente = sc.next();
-                    if (excluirCliente.equalsIgnoreCase("S")) {
-                        System.out.print("Informe o nome para deletar: ");
-                        c.setNome(sc.next());
-                        cc.deletar(c.getNome());
-                    }
-
-                    cc.listar();
+                    menuMercado(mercadoController, sc);
                     break;
 
                 case 2:
-                    System.out.println("Você selecionou vendedor");
+                    menuCliente(clienteController, sc);
+                    break;
 
-                    System.out.print("Nome do vendedor: ");
-                    v.setNome(sc.next());
-                    System.out.print("Idade do vendedor: ");
-                    v.setIdade(sc.nextInt());
-                    System.out.print("Idade do cpf: ");
-                    v.setCpf(sc.nextInt());
-                    cv.cadastrar(v);
-
-
-                    System.out.print("Deseja atualizar os dados? (S/N): ");
-                    String atualizarVendedor = sc.next();
-                    if (atualizarVendedor.equalsIgnoreCase("S")) {
-                        System.out.print("Informe o novo nome: ");
-                        v.setNome(sc.next());
-                        System.out.print("Nova idade: ");
-                        v.setIdade(sc.nextInt());
-                        cv.atualizar(v.getNome(), v.getIdade());
-                    }
-
-                    System.out.print("Deseja excluir os dados? (S/N): ");
-                    String excluirVendedor = sc.next();
-                    if (excluirVendedor.equalsIgnoreCase("S")) {
-                        System.out.print("Informe o nome para deletar: ");
-                        v.setNome(sc.next());
-                        cv.deletar(v.getNome());
-                    }
-
-                    cv.listar();
+                case 0:
+                    System.out.println("Encerrando...");
                     break;
 
                 default:
-                    System.out.println("Opção inválida.");
+                    System.out.println("Opção inválida!");
             }
-
-            System.out.println("Quer se cadastrar novamente? Digite S para sim ou qualquer outra tecla para sair.");
-            r = sc.next();
-
-        } while (r.equalsIgnoreCase("S"));
+        }
 
         sc.close();
+    }
+
+    private static void menuMercado(MercadoController controller, Scanner sc) {
+
+        int op = -1;
+
+        while (op != 0) {
+
+            System.out.println("\n=== MENU DO MERCADO ===");
+            System.out.println("1 - Cadastrar Mercado");
+            System.out.println("2 - Login Mercado");
+            System.out.println("3 - Cadastrar Produto (precisa estar logado)");
+            System.out.println("0 - Voltar");
+            System.out.print("Escolha: ");
+
+            try {
+                op = Integer.parseInt(sc.nextLine());
+            } catch (Exception e) {
+                op = -1;
+            }
+
+            switch (op) {
+
+                case 1:
+                    controller.cadastrarMercado();
+                    break;
+
+                case 2:
+                    controller.loginMercado();
+                    break;
+
+                case 3:
+                    controller.cadastrarProduto();
+                    break;
+
+                case 0:
+                    break;
+
+                default:
+                    System.out.println("Opção inválida!");
+            }
+        }
+    }
+
+    private static void menuCliente(ClienteController controller, Scanner sc) {
+
+        int op = -1;
+
+        while (op != 0) {
+
+            System.out.println("\n=== MENU DO CLIENTE ===");
+            System.out.println("1 - Cadastrar Cliente");
+            System.out.println("2 - Login Cliente");
+            System.out.println("0 - Voltar");
+            System.out.print("Escolha: ");
+
+            try {
+                op = Integer.parseInt(sc.nextLine());
+            } catch (Exception e) {
+                op = -1;
+            }
+
+            switch (op) {
+
+                case 1:
+                    controller.cadastrarCliente();
+                    break;
+
+                case 2:
+                    Cliente cliente = controller.loginCliente();
+                    if (cliente != null) {
+                        controller.menuCliente(cliente);
+                    }
+                    break;
+
+                case 0:
+                    break;
+
+                default:
+                    System.out.println("Opção inválida!");
+            }
+        }
     }
 }
