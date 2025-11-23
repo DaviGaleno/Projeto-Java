@@ -1,23 +1,37 @@
 package model;
 
-import enums.Classificacao;
-import model.interfaces.Folha;
+public class Cliente {
 
-public final class Cliente extends Pessoa {
+    private String nome;
+    private String cpf;
+    private int idade;
+    private String senha;
 
-
-    public Cliente(String nome) {
-        super(nome);
+    public Cliente(String nome, String cpf, int idade, String senha) {
+        this.nome = nome;
+        this.cpf = cpf;
+        this.idade = idade;
+        this.senha = senha;
     }
 
-    public Cliente(int idade) {
-        super(idade);
+    public String getNome() {
+        return nome;
     }
 
+    public String getCpf() {
+        return cpf;
+    }
+
+    public int getIdade() {
+        return idade;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
 
     @Override
-    public void quem_sou_eu() {
-        System.out.println(Classificacao.Cliente);
+    public String toString() {
+        return "Cliente: " + nome + " | CPF: " + cpf + " | Idade: " + idade;
     }
-
 }
