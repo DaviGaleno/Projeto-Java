@@ -1,33 +1,26 @@
 package model;
 
-public class Cliente {
+import model.interfaces.ICliente;
 
-    private String nome;
+public class Cliente extends Cadastro implements ICliente {
+
     private String cpf;
     private int idade;
-    private String senha;
 
     public Cliente(String nome, String cpf, int idade, String senha) {
-        this.nome = nome;
+        super(nome, senha);
         this.cpf = cpf;
         this.idade = idade;
-        this.senha = senha;
     }
 
-    public String getNome() {
-        return nome;
-    }
-
+    @Override
     public String getCpf() {
         return cpf;
     }
 
+    @Override
     public int getIdade() {
         return idade;
-    }
-
-    public String getSenha() {
-        return senha;
     }
 
     @Override
