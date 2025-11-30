@@ -1,3 +1,7 @@
+package controller;
+
+import model.*;
+import service.ClienteService;
 import service.Sessao;
 import service.VendaService;
 

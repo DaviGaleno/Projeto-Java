@@ -1,9 +1,11 @@
 package controller;
 
+import enums.CategoriaProduto;
 import model.Mercado;
 import service.MercadoService;
 import service.ProdutoService;
 import service.Sessao;
+import service.VendaService;
 
 import java.util.Scanner;
 
@@ -11,23 +13,21 @@ public class MercadoController {
 
     private MercadoService mercadoService;
     private ProdutoService produtoService;
+    private VendaService vendaService;
     private Scanner scanner;
 
-    // Construtor que permite injeção de dependências (usado no Main)
-    public MercadoController(MercadoService mercadoService, ProdutoService produtoService, Scanner scanner) {
+    public MercadoController(
+            MercadoService mercadoService,
+            ProdutoService produtoService,
+            VendaService vendaService,
+            Scanner scanner
+    ) {
         this.mercadoService = mercadoService;
         this.produtoService = produtoService;
+        this.vendaService = vendaService;
         this.scanner = scanner;
     }
 
-    // Construtor padrão (mantido por compatibilidade)
-    public MercadoController() {
-        this.mercadoService = new MercadoService();
-        this.produtoService = new ProdutoService();
-        this.scanner = new Scanner(System.in);
-    }
-
-    // === CADASTRAR MERCADO ===
     public void cadastrarMercado() {
         System.out.print("Nome fantasia: ");
         String nome = scanner.nextLine();
@@ -38,12 +38,10 @@ public class MercadoController {
         System.out.print("Senha: ");
         String senha = scanner.nextLine();
 
-        // usa o método de serviço que aceita strings
         mercadoService.cadastrar(nome, cnpj, senha);
         System.out.println("Mercado cadastrado com sucesso!");
     }
 
-    // === LOGIN DE MERCADO ===
     public Mercado loginMercado() {
         System.out.print("CNPJ: ");
         String cnpj = scanner.nextLine();
@@ -58,62 +56,51 @@ public class MercadoController {
             return null;
         }
 
-        // registra sessão global para facilitar chamadas sem passar objeto
         Sessao.mercadoLogado = mercado;
-
         System.out.println("Login realizado com sucesso!");
         return mercado;
     }
 
-    // Versão pública sem parâmetros — utiliza Sessao.mercadoLogado (compatível com Main)
     public void cadastrarProduto() {
-        Mercado mercadoLogado = Sessao.mercadoLogado;
-        if (mercadoLogado == null) {
-            System.out.println("Nenhum mercado logado. Faça login primeiro.");
+        Mercado mercado = Sessao.mercadoLogado;
+
+        if (mercado == null) {
+            System.out.println("Nenhum mercado logado.");
             return;
         }
-        cadastrarProduto(mercadoLogado);
-    }
 
-    // Versão pública sem parâmetros para listar produtos
-    public void listarProdutos() {
-        Mercado mercadoLogado = Sessao.mercadoLogado;
-        if (mercadoLogado == null) {
-            System.out.println("Nenhum mercado logado. Faça login primeiro.");
-            return;
-        }
-        listarProdutos(mercadoLogado);
-    }
-
-    // === cadastrar produto usando o Mercado fornecido ===
-    private void cadastrarProduto(Mercado mercadoLogado) {
         System.out.print("Nome do produto: ");
         String nome = scanner.nextLine();
 
         System.out.print("Preço: ");
-        double preco;
-        try {
-            preco = Double.parseDouble(scanner.nextLine());
-        } catch (Exception e) {
-            System.out.println("Preço inválido. Operação cancelada.");
-            return;
-        }
+        double preco = Double.parseDouble(scanner.nextLine());
 
         System.out.print("Estoque: ");
-        int estoque;
-        try {
-            estoque = Integer.parseInt(scanner.nextLine());
-        } catch (Exception e) {
-            System.out.println("Estoque inválido. Operação cancelada.");
-            return;
+        int estoque = Integer.parseInt(scanner.nextLine());
+
+        System.out.println("\nSelecione a categoria:");
+        int i = 1;
+        for (CategoriaProduto c : CategoriaProduto.values()) {
+            System.out.println(i + " - " + c);
+            i++;
         }
 
-        produtoService.cadastrar(mercadoLogado, nome, preco, estoque);
+        System.out.print("Opção: ");
+        int opc = Integer.parseInt(scanner.nextLine());
+        CategoriaProduto categoria = CategoriaProduto.values()[opc - 1];
 
+        produtoService.cadastrar(mercado, nome, preco, estoque, categoria);
         System.out.println("Produto cadastrado com sucesso!");
     }
 
-    private void listarProdutos(Mercado mercadoLogado) {
-        produtoService.listar(mercadoLogado);
+    public void gerarRelatorio() {
+        Mercado mercado = Sessao.mercadoLogado;
+
+        if (mercado == null) {
+            System.out.println("Nenhum mercado logado.");
+            return;
+        }
+
+        mercado.gerarRelatorio();
     }
 }
