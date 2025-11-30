@@ -1,23 +1,21 @@
-package controller;
-
-import model.Cliente;
-import service.ClienteService;
+import service.Sessao;
+import service.VendaService;
 
 import java.util.Scanner;
 
 public class ClienteController {
 
-    private ClienteService clienteService;
-    private Scanner scanner;
+    private final ClienteService clienteService;
+    private final VendaService vendaService;
+    private final Scanner scanner;
 
-    // CONSTRUTOR COMPATÍVEL COM A MAIN
-    public ClienteController(ClienteService clienteService, Scanner scanner) {
+    public ClienteController(ClienteService clienteService, VendaService vendaService, Scanner scanner) {
         this.clienteService = clienteService;
+        this.vendaService = vendaService;
         this.scanner = scanner;
     }
 
     public void cadastrarCliente() {
-
         System.out.print("Nome: ");
         String nome = scanner.nextLine();
 
@@ -36,7 +34,6 @@ public class ClienteController {
     }
 
     public Cliente loginCliente() {
-
         System.out.print("CPF: ");
         String cpf = scanner.nextLine();
 
@@ -60,8 +57,8 @@ public class ClienteController {
 
         while (opcao != 0) {
             System.out.println("\n===== MENU DO CLIENTE " + clienteLogado.getNome() + " =====");
-            System.out.println("1 - Consultar Produtos (Sprint 3)");
-            System.out.println("2 - Realizar Compra (Sprint 3)");
+            System.out.println("1 - Consultar Produtos");
+            System.out.println("2 - Realizar Compra");
             System.out.println("0 - Sair");
             System.out.print("Escolha: ");
 
@@ -72,11 +69,85 @@ public class ClienteController {
             }
 
             switch (opcao) {
-                case 1 -> System.out.println("Função disponível na Sprint 3");
-                case 2 -> System.out.println("Função disponível na Sprint 3");
+                case 1 -> consultarProdutos();
+                case 2 -> realizarCompra(clienteLogado);
                 case 0 -> System.out.println("Saindo do menu do cliente...");
                 default -> System.out.println("Opção inválida!");
             }
         }
+    }
+
+    private void consultarProdutos() {
+        System.out.println("\n=== LISTA DE PRODUTOS DE TODOS OS MERCADOS ===");
+
+        for (var mercado : service.MercadoService.getMercadosStatic()) {
+            System.out.println("\n--- Mercado: " + mercado.getNome() + " ---");
+            for (var p : mercado.getProdutos()) {
+                System.out.println(p);
+            }
+        }
+    }
+
+    private void realizarCompra(Cliente clienteLogado) {
+
+        Compra compra = new Compra(clienteLogado);
+
+        while (true) {
+            System.out.println("\nDigite o nome do produto (ou 0 para finalizar): ");
+            String nome = scanner.nextLine();
+
+            if (nome.equals("0")) break;
+
+            var produto = service.MercadoService.buscarProdutoGlobal(nome);
+
+            if (produto == null) {
+                System.out.println("Produto não encontrado!");
+                continue;
+            }
+
+            System.out.print("Quantidade: ");
+            int qtd;
+            try {
+                qtd = Integer.parseInt(scanner.nextLine());
+            } catch (Exception e) {
+                System.out.println("Quantidade inválida.");
+                continue;
+            }
+
+            if (qtd > produto.getEstoque()) {
+                System.out.println("Estoque insuficiente!");
+                continue;
+            }
+
+            produto.reduzirEstoque(qtd);
+            compra.adicionarItem(new ItemCompra(produto, qtd));
+            System.out.println("Produto adicionado ao carrinho!");
+        }
+
+        if (compra.getItens().isEmpty()) {
+            System.out.println("Nenhum item comprado.");
+            return;
+        }
+
+        if (Sessao.compraService != null) {
+            Sessao.compraService.registrarCompra(compra);
+        }
+
+        for (var item : compra.getItens()) {
+
+            Mercado mercado = item.getProduto().getMercado();
+
+            Venda venda = new Venda(
+                    item.getProduto().getNome(),
+                    item.getQuantidade(),
+                    item.getProduto().getPreco(),
+                    clienteLogado
+            );
+
+            mercado.registrarVenda(venda);
+        }
+
+        System.out.println("COMPRA FINALIZADA!");
+        System.out.println("Total: R$ " + compra.getTotal());
     }
 }
